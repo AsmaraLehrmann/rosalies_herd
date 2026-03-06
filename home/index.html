@@ -510,6 +510,43 @@
   .who-card .who-name { font-size: 0.8rem; font-weight: 600; color: var(--black); line-height: 1.2; }
   .who-card .who-badge { font-size: 0.7rem; }
 
+  /* ── Revealed Sessions ── */
+  .revealed-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .revealed-item {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .revealed-item.current { border: 2px solid var(--green); background: var(--green-light); }
+  .revealed-num {
+    width: 36px; height: 36px;
+    background: var(--gray-200);
+    color: var(--gray-700);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+  }
+  .revealed-item.current .revealed-num { background: var(--green); color: var(--white); }
+  .revealed-info { flex: 1; }
+  .revealed-title { font-weight: 600; font-size: 0.95rem; }
+  .revealed-date { font-size: 0.8rem; color: var(--gray-700); }
+  .revealed-type {
+    font-size: 0.75rem; color: var(--gray-400);
+    background: var(--gray-100);
+    padding: 0.2rem 0.6rem; border-radius: 4px; white-space: nowrap;
+  }
+  .locked-notice {
+    text-align: center;
+    color: var(--gray-400);
+    font-size: 0.9rem;
+    padding: 1rem;
+    font-style: italic;
+  }
+
   /* ── GitHub Banner ── */
   .github-banner {
     display: flex;
@@ -708,6 +745,17 @@
 </div>
 
 <!-- ════════════════════════════════════════ -->
+<!-- SESSIONS REVEALED SO FAR -->
+<!-- ════════════════════════════════════════ -->
+<div class="container section" id="revealed-section">
+  <div class="section-header">
+    <div class="icon">📅</div>
+    <h2>Sessions So Far</h2>
+  </div>
+  <div id="revealed-list"><!-- rendered by JS --></div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
 <!-- GITHUB LINK -->
 <!-- ════════════════════════════════════════ -->
 <div class="container section">
@@ -775,6 +823,82 @@
 </div>
 
 <script>
+// ════════════════════════════════════════
+// ✏️ SET YOUR START DATE HERE
+// Format: 'YYYY-MM-DD' — the date of Session 1
+// Sessions unlock every 14 days from this date
+// Set to null to hide the "Sessions So Far" section entirely
+// ════════════════════════════════════════
+const SESSION_START_DATE = null; // e.g. '2026-04-07'
+const SESSION_INTERVAL_DAYS = 14;
+
+const ALL_SESSIONS = [
+  { num: 1,  title: "How to Talk to Each Other",              type: "Article"  },
+  { num: 2,  title: "Community vs. the \"American Dream\"",   type: "Article"  },
+  { num: 3,  title: "Sexism in Our Spaces",                   type: "Article"  },
+  { num: 4,  title: "Racism in Our Spaces",                   type: "Article"  },
+  { num: 5,  title: "Houston and Racial Segregation",         type: "Video"    },
+  { num: 6,  title: "Homophobia and Queer Liberation",        type: "Article"  },
+  { num: 7,  title: "Ableism, Healthcare, and Bodily Autonomy", type: "Article"},
+  { num: 8,  title: "Voting and Political Engagement",        type: "Article"  },
+  { num: 9,  title: "Public Transit in Houston",              type: "Article"  },
+  { num: 10, title: "Environmental Sustainability and the Co-Op", type: "Article" },
+  { num: 11, title: "Veganism and Food Systems",              type: "Article"  },
+  { num: 12, title: "Palestine",                              type: "Article"  },
+  { num: 13, title: "The Economy of Violence and Policing",   type: "Podcast"  },
+  { num: 14, title: "Landlords, Tenants, and the Co-Op",      type: "Book"     },
+];
+
+function renderRevealedSessions() {
+  const section = document.getElementById('revealed-section');
+  const list = document.getElementById('revealed-list');
+
+  if (!SESSION_START_DATE) {
+    section.style.display = 'none';
+    return;
+  }
+
+  const start = new Date(SESSION_START_DATE);
+  const now = new Date();
+  const daysSinceStart = Math.floor((now - start) / (1000 * 60 * 60 * 24));
+  const sessionsUnlocked = Math.min(
+    Math.floor(daysSinceStart / SESSION_INTERVAL_DAYS) + 1,
+    ALL_SESSIONS.length
+  );
+
+  if (sessionsUnlocked <= 0) {
+    list.innerHTML = `<p class="locked-notice">Sessions will start revealing on ${SESSION_START_DATE}.</p>`;
+    return;
+  }
+
+  const revealed = ALL_SESSIONS.slice(0, sessionsUnlocked);
+  const currentIdx = sessionsUnlocked - 1;
+
+  list.innerHTML = `<div class="revealed-list">` + revealed.map((s, i) => {
+    const isCurrent = i === currentIdx;
+    const sessionDate = new Date(start);
+    sessionDate.setDate(start.getDate() + i * SESSION_INTERVAL_DAYS);
+    const dateStr = sessionDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+    return `
+      <div class="revealed-item${isCurrent ? ' current' : ''}">
+        <div class="revealed-num">${s.num}</div>
+        <div class="revealed-info">
+          <div class="revealed-title">${s.title}${isCurrent ? ' ← current' : ''}</div>
+          <div class="revealed-date">${dateStr}</div>
+        </div>
+        <span class="revealed-type">${s.type}</span>
+      </div>`;
+  }).join('') + `</div>`;
+
+  if (sessionsUnlocked < ALL_SESSIONS.length) {
+    const nextDate = new Date(start);
+    nextDate.setDate(start.getDate() + sessionsUnlocked * SESSION_INTERVAL_DAYS);
+    const nextStr = nextDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+    list.innerHTML += `<p class="locked-notice">🔒 Session ${sessionsUnlocked + 1} unlocks ${nextStr}</p>`;
+  }
+}
+
 // ════════════════════════════════════════
 // ✏️ EDIT THIS ARRAY to add/remove members
 // ════════════════════════════════════════
@@ -961,6 +1085,7 @@ document.getElementById('modal-overlay').addEventListener('click', e => {
 // ── Init ──
 updateRSVPTally();
 renderMembers();
+renderRevealedSessions();
 </script>
 
 </body>
