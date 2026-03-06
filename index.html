@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rosalie's Herd — Co-Op Discussion Group</title>
+<style>
+  /* ── Reset & Base ── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --green: #00A651;
+    --green-dark: #008C45;
+    --green-light: #E6F7EE;
+    --black: #1A1A1A;
+    --gray-900: #2D2D2D;
+    --gray-700: #555;
+    --gray-400: #999;
+    --gray-200: #E5E5E5;
+    --gray-100: #F5F5F5;
+    --white: #FFFFFF;
+    --radius: 12px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+  }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--gray-100);
+    color: var(--black);
+    line-height: 1.6;
+  }
+  a { color: var(--green-dark); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── Hero ── */
+  .hero {
+    background-image: url('./horses.jpg');
+    background-size: cover;
+    background-position: center center;
+    color: var(--white);
+    text-align: center;
+    padding: 7rem 1.5rem 5rem;
+    position: relative;
+    min-height: 340px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Lighter overlay — shows the image more clearly */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.45) 100%);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: var(--green);
+  }
+  .hero > * { position: relative; z-index: 1; }
+  .hero-emoji { font-size: 2.5rem; margin-bottom: 0.5rem; }
+  .hero h1 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 0.25rem;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .hero h1 span { color: var(--green); }
+  .hero .subtitle {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.85);
+    font-weight: 400;
+    margin-bottom: 1rem;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  }
+  .hero-badges {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+  }
+  .badge {
+    background: rgba(0,166,81,0.2);
+    color: #7FFFC4;
+    padding: 0.35rem 0.9rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: 1px solid rgba(0,166,81,0.5);
+    backdrop-filter: blur(4px);
+  }
+
+  /* ── Container ── */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+  }
+
+  /* ── Upcoming Session Card ── */
+  .upcoming {
+    background: var(--white);
+    border: 2px solid var(--green);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin: -1.5rem auto 2rem;
+    position: relative;
+    z-index: 10;
+    box-shadow: var(--shadow-lg);
+    max-width: 900px;
+  }
+  .upcoming-label {
+    display: inline-block;
+    background: var(--green);
+    color: var(--white);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 0.3rem 0.8rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+  .upcoming h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 0.25rem;
+  }
+  .upcoming .session-meta {
+    color: var(--gray-700);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+  }
+  .upcoming .session-meta strong { color: var(--black); }
+  .upcoming .assignment-box {
+    background: var(--green-light);
+    border-left: 4px solid var(--green);
+    padding: 1rem 1.25rem;
+    border-radius: 0 8px 8px 0;
+    margin: 1rem 0;
+  }
+  .assignment-box .label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--green-dark);
+    margin-bottom: 0.4rem;
+  }
+  .assignment-box a { font-weight: 600; font-size: 1rem; }
+  .assignment-box .type {
+    font-size: 0.85rem;
+    color: var(--gray-700);
+    font-style: italic;
+  }
+  .upcoming-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  /* ── RSVP Section ── */
+  .rsvp-section {
+    margin-top: 1.5rem;
+    border-top: 1px solid var(--gray-200);
+    padding-top: 1.25rem;
+  }
+  .rsvp-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--gray-700);
+    margin-bottom: 0.75rem;
+  }
+  .rsvp-buttons {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+  .rsvp-btn {
+    padding: 0.55rem 1.4rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .rsvp-btn.attending {
+    background: var(--green-light);
+    color: var(--green-dark);
+    border-color: var(--green);
+  }
+  .rsvp-btn.attending:hover,
+  .rsvp-btn.attending.selected {
+    background: var(--green);
+    color: var(--white);
+  }
+  .rsvp-btn.regrets {
+    background: #FFF5F5;
+    color: #C0392B;
+    border-color: #E74C3C;
+  }
+  .rsvp-btn.regrets:hover,
+  .rsvp-btn.regrets.selected {
+    background: #E74C3C;
+    color: var(--white);
+  }
+  .rsvp-tally {
+    display: flex;
+    gap: 1.25rem;
+    font-size: 0.85rem;
+    color: var(--gray-700);
+    margin-top: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .rsvp-tally .tally-item { display: flex; align-items: center; gap: 0.3rem; }
+  .tally-count {
+    font-weight: 700;
+    font-size: 1rem;
+  }
+  .tally-count.attending { color: var(--green-dark); }
+  .tally-count.regrets { color: #C0392B; }
+
+  /* ── Buttons ── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--green); color: var(--white); }
+  .btn-primary:hover { background: var(--green-dark); text-decoration: none; }
+  .btn-outline { background: var(--white); color: var(--green-dark); border: 1.5px solid var(--green); }
+  .btn-outline:hover { background: var(--green-light); text-decoration: none; }
+  .btn-dark { background: var(--black); color: var(--white); }
+  .btn-dark:hover { background: var(--gray-900); text-decoration: none; }
+
+  /* ── Section Headers ── */
+  .section { margin: 2.5rem auto; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+  }
+  .section-header h2 { font-size: 1.3rem; font-weight: 700; color: var(--black); }
+  .section-header .icon {
+    width: 32px; height: 32px;
+    background: var(--green);
+    color: var(--white);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  /* ── Quick Links ── */
+  .quick-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  .quick-link {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 1.5px solid transparent;
+  }
+  .quick-link:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); border-color: var(--green); text-decoration: none; }
+  .quick-link .ql-icon {
+    font-size: 1.5rem;
+    width: 44px; height: 44px;
+    background: var(--green-light);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .quick-link .ql-text { font-weight: 600; color: var(--black); font-size: 0.9rem; }
+  .quick-link .ql-sub { font-size: 0.8rem; color: var(--gray-700); font-weight: 400; }
+
+  /* ── Member Cards ── */
+  .members-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+  .member-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    border-left: 4px solid var(--gray-200);
+    transition: border-color 0.2s;
+    position: relative;
+  }
+  .member-card.rsvp-attending { border-left-color: var(--green); }
+  .member-card.rsvp-regrets { border-left-color: #E74C3C; }
+  .rsvp-badge {
+    position: absolute;
+    top: 0.6rem; right: 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .rsvp-badge.attending { background: var(--green-light); color: var(--green-dark); }
+  .rsvp-badge.regrets { background: #FFF5F5; color: #C0392B; }
+  .member-avatar {
+    width: 50px; height: 50px;
+    border-radius: 50%;
+    background: var(--green-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    overflow: hidden;
+    border: 2px solid var(--gray-200);
+  }
+  .member-card.rsvp-attending .member-avatar { border-color: var(--green); }
+  .member-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .member-info { flex: 1; min-width: 0; }
+  .member-name { font-weight: 700; font-size: 0.95rem; color: var(--black); }
+  .member-status { font-size: 0.85rem; color: var(--gray-700); margin-top: 0.25rem; font-style: italic; }
+  .member-status:empty::before { content: "No status set"; color: var(--gray-400); }
+  .member-edit-btn {
+    background: none;
+    border: none;
+    color: var(--gray-400);
+    cursor: pointer;
+    font-size: 0.8rem;
+    padding: 0.2rem;
+  }
+  .member-edit-btn:hover { color: var(--green); }
+
+  /* ── Syllabus ── */
+  .syllabus-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .syllabus-item {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .syllabus-item.active { border: 2px solid var(--green); background: var(--green-light); }
+  .session-num {
+    width: 36px; height: 36px;
+    background: var(--gray-200);
+    color: var(--gray-700);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .syllabus-item.active .session-num { background: var(--green); color: var(--white); }
+  .session-info { flex: 1; }
+  .session-title { font-weight: 600; font-size: 0.95rem; }
+  .session-date { font-size: 0.8rem; color: var(--gray-700); }
+  .session-type {
+    font-size: 0.75rem;
+    color: var(--gray-400);
+    background: var(--gray-100);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  /* ── How It Works ── */
+  .conduct-box {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+  .conduct-box p {
+    color: var(--gray-700);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    line-height: 1.7;
+  }
+  .conduct-box ul { list-style: none; padding: 0; }
+  .conduct-box li {
+    padding: 0.5rem 0 0.5rem 1.5rem;
+    position: relative;
+    font-size: 0.95rem;
+    color: var(--gray-700);
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .conduct-box li:last-child { border-bottom: none; }
+  .conduct-box li::before { content: '✦'; position: absolute; left: 0; color: var(--green); font-size: 0.75rem; top: 0.65rem; }
+
+  /* ── Modals (shared) ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 2rem;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: var(--shadow-lg);
+  }
+  .modal h3 { font-size: 1.1rem; margin-bottom: 0.4rem; color: var(--black); }
+  .modal .modal-sub { font-size: 0.85rem; color: var(--gray-700); margin-bottom: 1.25rem; }
+  .modal label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 0.3rem;
+    margin-top: 0.75rem;
+  }
+  .modal input, .modal textarea {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    border: 1.5px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    outline: none;
+    transition: border 0.2s;
+  }
+  .modal input:focus, .modal textarea:focus { border-color: var(--green); }
+  .modal textarea { resize: vertical; min-height: 60px; }
+  .modal-actions { display: flex; gap: 0.5rem; margin-top: 1.25rem; justify-content: flex-end; }
+
+  /* ── Who Are You? picker ── */
+  .who-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 0.6rem;
+    max-height: 340px;
+    overflow-y: auto;
+    margin-bottom: 0.5rem;
+  }
+  .who-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.75rem 0.5rem;
+    border-radius: 10px;
+    border: 2px solid var(--gray-200);
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--white);
+    text-align: center;
+  }
+  .who-card:hover { border-color: var(--green); background: var(--green-light); }
+  .who-card.selected-attending { border-color: var(--green); background: var(--green-light); }
+  .who-card.selected-regrets { border-color: #E74C3C; background: #FFF5F5; }
+  .who-card .who-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: var(--green-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    overflow: hidden;
+    border: 2px solid var(--gray-200);
+  }
+  .who-card.selected-attending .who-avatar { border-color: var(--green); }
+  .who-card.selected-regrets .who-avatar { border-color: #E74C3C; }
+  .who-card .who-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .who-card .who-name { font-size: 0.8rem; font-weight: 600; color: var(--black); line-height: 1.2; }
+  .who-card .who-badge { font-size: 0.7rem; }
+
+  /* ── GitHub Banner ── */
+  .github-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--black);
+    color: var(--white);
+    border-radius: var(--radius);
+    padding: 1.5rem 1.75rem;
+    box-shadow: var(--shadow-lg);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: 2px solid transparent;
+  }
+  .github-banner:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 36px rgba(0,0,0,0.18);
+    border-color: var(--green);
+    text-decoration: none;
+  }
+  .github-banner-left { display: flex; align-items: center; gap: 1rem; }
+  .github-icon {
+    width: 52px; height: 52px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    flex-shrink: 0;
+  }
+  .github-title { font-weight: 700; font-size: 1.05rem; color: var(--white); }
+  .github-sub { font-size: 0.85rem; color: rgba(255,255,255,0.6); margin-top: 0.2rem; }
+  .github-arrow { font-size: 1.5rem; color: var(--green); font-weight: 700; }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--gray-400);
+    font-size: 0.85rem;
+    margin-top: 2rem;
+  }
+  footer a { color: var(--green); }
+
+  /* ── Responsive ── */
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 1.8rem; }
+    .upcoming { margin: -1rem 1rem 1.5rem; padding: 1.5rem; }
+    .members-grid { grid-template-columns: 1fr; }
+    .quick-links { grid-template-columns: 1fr; }
+    .syllabus-item { flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════ -->
+<!-- HERO — background: horses.jpg -->
+<!-- ════════════════════════════════════════ -->
+<header class="hero">
+  <div class="hero-emoji">🐴</div>
+  <h1>Rosalie's <span>Herd</span></h1>
+  <p class="subtitle">HAUS Co-Op Discussion Group — Houston, TX</p>
+  <div class="hero-badges">
+    <span class="badge">📅 Every Two Weeks</span>
+    <span class="badge">⏱ 1 Hour</span>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════ -->
+<!-- UPCOMING SESSION -->
+<!-- ════════════════════════════════════════ -->
+<div class="container">
+  <div class="upcoming">
+    <span class="upcoming-label">⚡ Up Next</span>
+
+    <!-- ✏️ EDIT THIS SECTION BEFORE EACH SESSION -->
+    <h2>Session 1: How to Talk to Each Other</h2>
+    <p class="session-meta">
+      <strong>Date:</strong> TBD &nbsp;·&nbsp;
+      <strong>Time:</strong> TBD &nbsp;·&nbsp;
+      <strong>Virtual via Google Meet</strong>
+    </p>
+    <div class="assignment-box">
+      <div class="label">📖 Assigned Reading</div>
+      <a href="https://greatergood.berkeley.edu/article/item/five_ways_to_have_more_constructive_disagreements" target="_blank">
+        "Five Ways to Have More Constructive Disagreements" — Greater Good Magazine
+      </a>
+      <div class="type">Article (~10 min read)</div>
+    </div>
+    <!-- END EDIT SECTION -->
+
+    <div class="upcoming-actions">
+      <!-- ✏️ REPLACE # with your Google Meet link -->
+      <a href="#" class="btn btn-primary" target="_blank">📹 Join Google Meet</a>
+      <a href="#" class="btn btn-dark" target="_blank">📂 GitHub Repo</a>
+    </div>
+
+    <!-- ── RSVP ── -->
+    <div class="rsvp-section">
+      <div class="rsvp-title">RSVP for this session</div>
+      <div class="rsvp-buttons">
+        <button class="rsvp-btn attending" onclick="openWhoModal('attending')">✅ Attending</button>
+        <button class="rsvp-btn regrets" onclick="openWhoModal('regrets')">❌ Regrets</button>
+      </div>
+      <div class="rsvp-tally" id="rsvp-tally">
+        <div class="tally-item">
+          <span class="tally-count attending" id="attending-count">0</span>
+          <span>attending</span>
+        </div>
+        <div class="tally-item">
+          <span class="tally-count regrets" id="regrets-count">0</span>
+          <span>regrets</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- QUICK LINKS -->
+<!-- ════════════════════════════════════════ -->
+<div class="container section">
+  <div class="section-header">
+    <div class="icon">🔗</div>
+    <h2>Quick Links</h2>
+  </div>
+  <div class="quick-links">
+    <!-- ✏️ REPLACE # with your actual links -->
+    <a href="#" class="quick-link" target="_blank">
+      <div class="ql-icon">📹</div>
+      <div>
+        <div class="ql-text">Google Meet</div>
+        <div class="ql-sub">Join the virtual room</div>
+      </div>
+    </a>
+    <a href="#" class="quick-link" target="_blank">
+      <div class="ql-icon">💬</div>
+      <div>
+        <div class="ql-text">Slack Channel</div>
+        <div class="ql-sub">Chat with the herd</div>
+      </div>
+    </a>
+    <a href="#" class="quick-link" target="_blank">
+      <div class="ql-icon">📜</div>
+      <div>
+        <div class="ql-text">Code of Conduct</div>
+        <div class="ql-sub">Our living document</div>
+      </div>
+    </a>
+    <a href="#" class="quick-link" target="_blank">
+      <div class="ql-icon">📝</div>
+      <div>
+        <div class="ql-text">Homework Doc</div>
+        <div class="ql-sub">Action items & accountability</div>
+      </div>
+    </a>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- THE HERD (Member Profiles) -->
+<!-- ════════════════════════════════════════ -->
+<div class="container section">
+  <div class="section-header">
+    <div class="icon">🐎</div>
+    <h2>The Herd</h2>
+  </div>
+  <p style="color: var(--gray-700); margin-bottom: 1rem; font-size: 0.9rem;">
+    Click ✏️ on your card to update your name, photo, and what you're thinking about this week. RSVP above to show up as attending on your card.
+  </p>
+  <div class="members-grid" id="members-grid">
+    <!-- Rendered by JS -->
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- HOW IT WORKS (moved above syllabus) -->
+<!-- ════════════════════════════════════════ -->
+<div class="container section">
+  <div class="section-header">
+    <div class="icon">📋</div>
+    <h2>How It Works</h2>
+  </div>
+  <div class="conduct-box">
+    <p>Discussion sessions every 2 weeks. You are <strong>not</strong> required to attend each time, but you <strong>are</strong> required to RSVP yes or no 24 hours prior.</p>
+    <ul>
+      <li><strong>Before:</strong> Complete the assigned reading/listening (&lt;15 min) and RSVP on this page</li>
+      <li><strong>First 5 minutes:</strong> Review our Code of Conduct together — it's a living document we co-create</li>
+      <li><strong>Discussion:</strong> Actively participate and leave space for quieter voices. If you're taking a lot of airspace, step back. If you're only observing, find a way in.</li>
+      <li><strong>Assume good intentions.</strong> This is a learning space and a space for us to make mistakes together.</li>
+      <li><strong>Homework:</strong> At session's end, assign yourself one action item matching the theme (email a rep, volunteer with a local group, do more research, etc.)</li>
+      <li><strong>Accountability:</strong> Share your homework in the Google Doc. We start each session by checking in on last session's action items.</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- GITHUB LINK -->
+<!-- ════════════════════════════════════════ -->
+<div class="container section">
+  <div class="section-header">
+    <div class="icon">📚</div>
+    <h2>Syllabus & Course Materials</h2>
+  </div>
+  <!-- ✏️ REPLACE # with your GitHub repo URL -->
+  <a href="#" class="github-banner" target="_blank">
+    <div class="github-banner-left">
+      <div class="github-icon">
+        <svg height="28" width="28" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="github-title">View Full Syllabus on GitHub</div>
+        <div class="github-sub">All 14 sessions · readings · code of conduct · homework tracker</div>
+      </div>
+    </div>
+    <div class="github-arrow">→</div>
+  </a>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- FOOTER -->
+<!-- ════════════════════════════════════════ -->
+<footer>
+  <p> Rosalie's Herd · <a href="#">HAUS Project</a> · Houston, TX</p>
+  <p style="margin-top: 0.5rem;">Made with love for a better world.</p>
+</footer>
+
+<!-- ════════════════════════════════════════ -->
+<!-- WHO ARE YOU? RSVP MODAL -->
+<!-- ════════════════════════════════════════ -->
+<div class="modal-overlay" id="who-modal-overlay">
+  <div class="modal" style="max-width:520px;">
+    <h3 id="who-modal-title">Who are you?</h3>
+    <p class="modal-sub">Select your card to confirm your RSVP.</p>
+    <div class="who-grid" id="who-grid"><!-- rendered by JS --></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeWhoModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════ -->
+<!-- EDIT PROFILE MODAL -->
+<!-- ════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3>🐴 Update Your Profile</h3>
+    <p class="modal-sub">Your name and status will show on The Herd.</p>
+    <label for="edit-name">Your Name</label>
+    <input type="text" id="edit-name" placeholder="e.g. Asmara">
+    <label for="edit-emoji">Your Emoji or Photo URL</label>
+    <input type="text" id="edit-emoji" placeholder="e.g. 🐎 or paste an image URL">
+    <label for="edit-status">What are you thinking about this week?</label>
+    <textarea id="edit-status" placeholder="e.g. Thinking about our transit options around the co-op..."></textarea>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveProfile()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+// ✏️ EDIT THIS ARRAY to add/remove members
+// ════════════════════════════════════════
+const DEFAULT_MEMBERS = [
+  { id: "asmara",   name: "Asmara",    emoji: "🐴", status: "" },
+  { id: "member2",  name: "Member 2",  emoji: "🌿", status: "" },
+  { id: "member3",  name: "Member 3",  emoji: "🌻", status: "" },
+  { id: "member4",  name: "Member 4",  emoji: "🔥", status: "" },
+  { id: "member5",  name: "Member 5",  emoji: "🌊", status: "" },
+  { id: "member6",  name: "Member 6",  emoji: "⭐", status: "" },
+  { id: "member7",  name: "Member 7",  emoji: "🎨", status: "" },
+  { id: "member8",  name: "Member 8",  emoji: "📖", status: "" },
+  { id: "member9",  name: "Member 9",  emoji: "🎵", status: "" },
+  { id: "member10", name: "Member 10", emoji: "🌈", status: "" },
+];
+
+let currentEditId = null;
+let pendingRSVPStatus = null; // 'attending' | 'regrets'
+
+// ════════════════════════════════════════
+// MEMBER RSVP STORAGE
+// ════════════════════════════════════════
+function getMemberRSVPs() {
+  return JSON.parse(localStorage.getItem('herd-member-rsvps') || '{}');
+}
+function saveMemberRSVPs(obj) {
+  localStorage.setItem('herd-member-rsvps', JSON.stringify(obj));
+}
+
+// ════════════════════════════════════════
+// RSVP TALLY
+// ════════════════════════════════════════
+function updateRSVPTally() {
+  const rsvps = getMemberRSVPs();
+  const vals = Object.values(rsvps);
+  document.getElementById('attending-count').textContent = vals.filter(v => v === 'attending').length;
+  document.getElementById('regrets-count').textContent   = vals.filter(v => v === 'regrets').length;
+
+  // Restore highlight on RSVP buttons based on current browser's member
+  const myMemberId = localStorage.getItem('herd-my-member-id');
+  if (myMemberId && rsvps[myMemberId]) {
+    document.querySelectorAll('.rsvp-btn').forEach(b => b.classList.remove('selected'));
+    const btn = document.querySelector(`.rsvp-btn.${rsvps[myMemberId]}`);
+    if (btn) btn.classList.add('selected');
+  }
+}
+
+// ════════════════════════════════════════
+// WHO ARE YOU? MODAL
+// ════════════════════════════════════════
+function openWhoModal(status) {
+  pendingRSVPStatus = status;
+  const title = status === 'attending' ? '✅ You\'re attending — who are you?' : '❌ Sending regrets — who are you?';
+  document.getElementById('who-modal-title').textContent = title;
+
+  const members = getMembers();
+  const rsvps = getMemberRSVPs();
+  const grid = document.getElementById('who-grid');
+
+  grid.innerHTML = members.map(m => {
+    const currentStatus = rsvps[m.id];
+    let cardClass = 'who-card';
+    if (currentStatus === 'attending') cardClass += ' selected-attending';
+    if (currentStatus === 'regrets')   cardClass += ' selected-regrets';
+    const badgeEmoji = currentStatus === 'attending' ? '✅' : currentStatus === 'regrets' ? '❌' : '';
+    const avatarHtml = m.emoji && m.emoji.startsWith('http')
+      ? `<img src="${m.emoji}" alt="${m.name}">`
+      : m.emoji || '🐴';
+
+    return `
+      <div class="${cardClass}" onclick="confirmRSVP('${m.id}')">
+        <div class="who-avatar">${
+          m.emoji && m.emoji.startsWith('http')
+            ? `<img src="${m.emoji}" alt="${m.name}">`
+            : `<span>${m.emoji || '🐴'}</span>`
+        }</div>
+        <div class="who-name">${m.name}</div>
+        ${badgeEmoji ? `<div class="who-badge">${badgeEmoji}</div>` : ''}
+      </div>`;
+  }).join('');
+
+  document.getElementById('who-modal-overlay').classList.add('active');
+}
+
+function confirmRSVP(memberId) {
+  if (!pendingRSVPStatus) return;
+
+  const rsvps = getMemberRSVPs();
+  rsvps[memberId] = pendingRSVPStatus;
+  saveMemberRSVPs(rsvps);
+
+  // Remember this browser's chosen member
+  localStorage.setItem('herd-my-member-id', memberId);
+
+  closeWhoModal();
+  updateRSVPTally();
+  renderMembers();
+}
+
+function closeWhoModal() {
+  document.getElementById('who-modal-overlay').classList.remove('active');
+  pendingRSVPStatus = null;
+}
+document.getElementById('who-modal-overlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeWhoModal();
+});
+
+// ════════════════════════════════════════
+// MEMBERS
+// ════════════════════════════════════════
+function getMembers() {
+  const stored = JSON.parse(localStorage.getItem('herd-members') || 'null');
+  if (!stored) return DEFAULT_MEMBERS;
+  return DEFAULT_MEMBERS.map(def => {
+    const saved = stored.find(s => s.id === def.id);
+    return saved ? { ...def, ...saved } : def;
+  });
+}
+function saveMembers(members) {
+  localStorage.setItem('herd-members', JSON.stringify(members));
+}
+
+function renderMembers() {
+  const grid = document.getElementById('members-grid');
+  const members = getMembers();
+  const rsvps = getMemberRSVPs();
+
+  grid.innerHTML = members.map(m => {
+    const status = rsvps[m.id] || null;
+    const cardClass = 'member-card' + (status ? ` rsvp-${status}` : '');
+    const badgeHtml = status
+      ? `<span class="rsvp-badge ${status}">${status === 'attending' ? '✅ In' : '❌ Out'}</span>`
+      : '';
+    const avatarHtml = m.emoji && m.emoji.startsWith('http')
+      ? `<img src="${m.emoji}" alt="${m.name}">`
+      : `<span>${m.emoji || '🐴'}</span>`;
+
+    return `
+      <div class="${cardClass}">
+        ${badgeHtml}
+        <div class="member-avatar">${avatarHtml}</div>
+        <div class="member-info">
+          <div class="member-name">${m.name}
+            <button class="member-edit-btn" onclick="openModal('${m.id}')" title="Edit profile">✏️</button>
+          </div>
+          <div class="member-status">${m.status || ''}</div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════
+// EDIT PROFILE MODAL
+// ════════════════════════════════════════
+function openModal(id) {
+  currentEditId = id;
+  const m = getMembers().find(x => x.id === id);
+  if (!m) return;
+  document.getElementById('edit-name').value  = m.name;
+  document.getElementById('edit-emoji').value = m.emoji || '';
+  document.getElementById('edit-status').value = m.status || '';
+  document.getElementById('modal-overlay').classList.add('active');
+}
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('active');
+  currentEditId = null;
+}
+function saveProfile() {
+  if (!currentEditId) return;
+  const members = getMembers();
+  const idx = members.findIndex(x => x.id === currentEditId);
+  if (idx === -1) return;
+  members[idx].name   = document.getElementById('edit-name').value  || members[idx].name;
+  members[idx].emoji  = document.getElementById('edit-emoji').value || members[idx].emoji;
+  members[idx].status = document.getElementById('edit-status').value || '';
+  saveMembers(members);
+  renderMembers();
+  closeModal();
+}
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target === e.currentTarget) closeModal();
+});
+
+// ── Init ──
+updateRSVPTally();
+renderMembers();
+</script>
+
+</body>
+</html>
